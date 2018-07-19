@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+    <classPathEntry
+            location="/Users/whuanghkl/.m2/repository/mysql/mysql-connector-java/6.0.6/mysql-connector-java-6.0.6.jar"/>
+
+    <context id="context" targetRuntime="MyBatis3Simple">
+        <commentGenerator>
+            <property name="suppressAllComments" value="false"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <jdbcConnection userId="hw" password="#" driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://123.57.78.161:3306/xiaoyaoji?characterEncoding=UTF-8"/>
+
+        <!--<property name="nullCatalogMeansCurrent" value="true" />-->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="com.kunlunsoft.model2" targetProject="./src/main/java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="mybatis.mapperxml" targetProject="./src/main/resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <javaClientGenerator targetPackage="com.kunlunsoft.mybatis.mapper2" type="XMLMAPPER"
+                             targetProject="./src/main/java">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+        <table catalog="xiaoyaoji" tableName="%" enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <!-- <table schema="xiaoyaoji" tableName="email_token" enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+         <table schema="xiaoyaoji" tableName="interface" enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+         <table schema="xiaoyaoji" tableName="interface_folder" enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>-->
+        <!--<table catalog="xiaoyaoji" schema="xiaoyaoji" tableName="module" enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+        <table catalog="xiaoyaoji" schema="xiaoyaoji" tableName="project" enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>-->
+        <!--  <table schema="xiaoyaoji" tableName="project_log" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="project_user" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="share" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="team" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="team_user" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="user" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>
+          <table schema="xiaoyaoji" tableName="user_third" enableCountByExample="false" enableDeleteByExample="false"
+                 enableSelectByExample="false" enableUpdateByExample="false"/>-->
+    </context>
+</generatorConfiguration>
