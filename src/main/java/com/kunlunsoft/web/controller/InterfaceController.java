@@ -6,9 +6,9 @@ import com.io.hw.json.HWJacksonUtils;
 import com.kunlunsoft.dto.ColumnDescResponseDto;
 import com.kunlunsoft.dto.ResponseArgsDto;
 import com.kunlunsoft.dto.request.DescriptionDto;
-import com.kunlunsoft.model2.Interface;
 import com.kunlunsoft.model2.response.ResponseArgsItem;
 import com.kunlunsoft.mybatis.mapper2.InterfaceMapper;
+import com.kunlunsoft.service.InterfaceDetailService;
 import com.string.widget.util.ValueWidget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -31,24 +31,20 @@ import java.util.Map;
 public class InterfaceController {
     @Autowired
     private InterfaceMapper interfaceMapper;
-
+    @Autowired
+    private InterfaceDetailService interfaceDetailService;
     @ResponseBody
     @RequestMapping(value = "/query/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
     public String jsonQuery2(Model model, HttpServletRequest request, HttpServletResponse response
             , @RequestParam(name = "id", required = true) String id) {
         System.out.println("id :" + id);
-        List<ResponseArgsItem> responseargItems = getResponseArgsItems(id);
+        List<ResponseArgsItem> responseargItems = interfaceDetailService.getResponseArgsItems(id);
         ResponseArgsDto responseArgsDto = new ResponseArgsDto();
 //        BeanHWUtil.copyProperties(anInterface,responseArgsDto);
 //        responseArgsDto.setResponseargItems(responseargItems);
         return BaseResponseDto.jsonValue(responseargItems);
     }
 
-    private List<ResponseArgsItem> getResponseArgsItems(String id) {
-        Interface anInterface = this.interfaceMapper.selectByPrimaryKey(id);
-        String responseargs = anInterface.getResponseargs();
-        return (List<ResponseArgsItem>) HWJacksonUtils.deSerializeList(responseargs, ResponseArgsItem.class);
-    }
 
     @ResponseBody
     @RequestMapping(value = "/setting/desc/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
@@ -57,7 +53,7 @@ public class InterfaceController {
             , @RequestParam(name = "id", required = true) String id) {
         Map<String, DescriptionDto> descriptionDtoMap = HWJacksonUtils.deSerializeMap(descJson, DescriptionDto.class);
         Map<String, String> descSimpleMap = parse2SimpleMap(descriptionDtoMap, null);
-        List<ResponseArgsItem> responseargItems = getResponseArgsItems(id);
+        List<ResponseArgsItem> responseargItems = interfaceDetailService.getResponseArgsItems(id);
         settingRespDesc2(descSimpleMap, responseargItems);
         return HWJacksonUtils.getJsonP(responseargItems);
     }
@@ -66,18 +62,47 @@ public class InterfaceController {
     @RequestMapping(value = "/auto/setting/desc/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
     public String jsonAutoFillDescription2(Model model, HttpServletRequest request, HttpServletResponse response
             , @RequestParam(name = "entity", required = false) String entity
-            , @RequestParam(name = "id", required = true) String id) {
+            , @RequestParam(name = "id", required = false) String id
+            , @RequestParam(name = "name", required = false) String name) {
         String entityName = "nearbyHouse";
         if (ValueWidget.isNullOrEmpty(entity)) {
             entity = entityName;
         }
+        List<ResponseArgsItem> responseargItems = null;
+        if (ValueWidget.isNullOrEmpty(id)) {
+            responseargItems = interfaceDetailService.getResponseArgsItemsByName(name);
+        } else {
+            responseargItems = interfaceDetailService.getResponseArgsItems(id);
+        }
+        settingRespDescAction(entity, responseargItems);
+//        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
+        return HWJacksonUtils.getJsonP(responseargItems);
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/auto/settingByUrl/desc/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
+    public String jsonAutoFillDescription2ByUrl(Model model, HttpServletRequest request, HttpServletResponse response
+            , @RequestParam(name = "entity", required = false) String entity
+            , @RequestParam(name = "url", required = false) String url
+            , @RequestParam(name = "requestmethod", required = false) String requestmethod) {
+        String entityName = "nearbyHouse";
+        if (ValueWidget.isNullOrEmpty(entity)) {
+            entity = entityName;
+        }
+        List<ResponseArgsItem> responseargItems = null;
+        responseargItems = interfaceDetailService.getResponseArgsItemsByUrlAndMethod(url, requestmethod);
+        settingRespDescAction(entity, responseargItems);
+//        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
+        return HWJacksonUtils.getJsonP(responseargItems);
+    }
+
+    private void settingRespDescAction(String entityName, List<ResponseArgsItem> responseargItems) {
         Map<String, String> descSimpleMap = getColumnDescMap(entityName);
 
         System.out.println(" :" + descSimpleMap);
-        List<ResponseArgsItem> responseargItems = getResponseArgsItems(id);
+
         settingRespDesc2(descSimpleMap, responseargItems);
-        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
-        return HWJacksonUtils.getJsonP(responseargItems);
     }
 
     private static Map<String, String> getColumnDescMap(String entityName) {

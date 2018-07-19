@@ -49,5 +49,16 @@ public interface InterfaceMapper {
 
     int updateResponseargsById(@Param("updatedResponseargs") String updatedResponseargs, @Param("id") String id);
 
+    int updateResponseargsByName(@Param("updatedResponseargs") String updatedResponseargs, @Param("name") String name);
+
+//    List<String> findResponseargsByName(@Param("name")String name);
+
+    List<Interface> findByname(@Param("name") String name);
+
+    List<Interface> findByUrlAndRequestmethod(@Param("url") String url, @Param("requestmethod") String requestmethod);
+
+    List<Interface> findByUrl(@Param("url") String url);
+
+
 
 }
