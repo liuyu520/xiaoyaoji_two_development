@@ -98,6 +98,10 @@ public class InterfaceController {
     }
 
     private void settingRespDescAction(String entityName, List<ResponseArgsItem> responseargItems) {
+        if (ValueWidget.isNullOrEmpty(responseargItems)) {
+            System.out.println("responseargItems is null :" + responseargItems);
+            return;
+        }
         Map<String, String> descSimpleMap = getColumnDescMap(entityName);
 
         System.out.println(" :" + descSimpleMap);
