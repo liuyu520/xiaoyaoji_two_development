@@ -1,7 +1,7 @@
 package com.kunlunsoft.mybatis.mapper2;
 
+import com.kunlunsoft.model.InterfaceWithBLOBs;
 import com.kunlunsoft.model2.Interface;
-import com.kunlunsoft.model2.InterfaceWithBLOBs;
 
 import java.util.List;
 
