@@ -1,5 +1,7 @@
 package com.kunlunsoft.mybatis.mapper2;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.kunlunsoft.model2.Interface;
 
 import java.util.List;
@@ -44,4 +46,8 @@ public interface InterfaceMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(Interface record);
+
+    int updateResponseargsById(@Param("updatedResponseargs") String updatedResponseargs, @Param("id") String id);
+
+
 }

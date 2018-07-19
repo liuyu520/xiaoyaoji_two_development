@@ -76,6 +76,7 @@ public class InterfaceController {
         System.out.println(" :" + descSimpleMap);
         List<ResponseArgsItem> responseargItems = getResponseArgsItems(id);
         settingRespDesc2(descSimpleMap, responseargItems);
+        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
         return HWJacksonUtils.getJsonP(responseargItems);
     }
 
