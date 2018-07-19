@@ -26,6 +26,6 @@ public class APIModuleController {
             , @RequestParam(name = "id", required = false) String id) {
         System.out.println("id :" + id);
         Module module = this.moduleMapper.selectByPrimaryKey(id);
-        return BaseResponseDto.jsonValue(model);
+        return BaseResponseDto.jsonValue(module);
     }
 }
