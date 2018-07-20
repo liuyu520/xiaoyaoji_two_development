@@ -38,11 +38,11 @@ public class InterfaceController {
     public String jsonQuery2(Model model, HttpServletRequest request, HttpServletResponse response
             , @RequestParam(name = "id", required = true) String id) {
         System.out.println("id :" + id);
-        List<ResponseArgsItem> responseargItems = interfaceDetailService.getResponseArgsItems(id);
+        List<ResponseArgsItem> responseargItems = interfaceDetailService.getResponseArgsItems(id).getResponseargItems();
         ResponseArgsDto responseArgsDto = new ResponseArgsDto();
 //        BeanHWUtil.copyProperties(anInterface,responseArgsDto);
 //        responseArgsDto.setResponseargItems(responseargItems);
-        return BaseResponseDto.jsonValue(responseargItems);
+        return new BaseResponseDto().setValue(responseargItems).put("test", "测试中文").put("value", responseargItems).toJson();
     }
 
 
@@ -53,7 +53,8 @@ public class InterfaceController {
             , @RequestParam(name = "id", required = true) String id) {
         Map<String, DescriptionDto> descriptionDtoMap = HWJacksonUtils.deSerializeMap(descJson, DescriptionDto.class);
         Map<String, String> descSimpleMap = parse2SimpleMap(descriptionDtoMap, null);
-        List<ResponseArgsItem> responseargItems = interfaceDetailService.getResponseArgsItems(id);
+        ResponseArgsDto responseArgsDto = interfaceDetailService.getResponseArgsItems(id);
+        List<ResponseArgsItem> responseargItems = responseArgsDto.getResponseargItems();
         settingRespDesc2(descSimpleMap, responseargItems);
         return HWJacksonUtils.getJsonP(responseargItems);
     }
@@ -69,13 +70,15 @@ public class InterfaceController {
             entity = entityName;
         }
         List<ResponseArgsItem> responseargItems = null;
+        ResponseArgsDto responseArgsDto = null;
         if (ValueWidget.isNullOrEmpty(id)) {
-            responseargItems = interfaceDetailService.getResponseArgsItemsByName(name);
+            responseArgsDto = interfaceDetailService.getResponseArgsItemsByName(name);
         } else {
-            responseargItems = interfaceDetailService.getResponseArgsItems(id);
+            responseArgsDto = interfaceDetailService.getResponseArgsItems(id);
         }
+        responseargItems = responseArgsDto.getResponseargItems();
         settingRespDescAction(entity, responseargItems);
-//        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
+        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), responseArgsDto.getId());
         return HWJacksonUtils.getJsonP(responseargItems);
     }
 
@@ -91,9 +94,10 @@ public class InterfaceController {
             entity = entityName;
         }
         List<ResponseArgsItem> responseargItems = null;
-        responseargItems = interfaceDetailService.getResponseArgsItemsByUrlAndMethod(url, requestmethod);
+        ResponseArgsDto responseArgsDto = interfaceDetailService.getResponseArgsItemsByUrlAndMethod(url, requestmethod);
+        responseargItems = responseArgsDto.getResponseargItems();
         settingRespDescAction(entity, responseargItems);
-//        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), id);
+        interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), responseArgsDto.getId());
         return HWJacksonUtils.getJsonP(responseargItems);
     }
 
