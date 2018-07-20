@@ -42,7 +42,7 @@ public class InterfaceController {
         ResponseArgsDto responseArgsDto = new ResponseArgsDto();
 //        BeanHWUtil.copyProperties(anInterface,responseArgsDto);
 //        responseArgsDto.setResponseargItems(responseargItems);
-        return new BaseResponseDto().setValue(responseargItems).put("test", "测试中文").put("value", responseargItems).toJson();
+        return BaseResponseDto.put2("test", "测试中文").put("value", responseargItems).toJson();
     }
 
 

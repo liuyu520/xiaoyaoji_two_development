@@ -27,7 +27,8 @@ import java.util.Map;
  * 用于检测第三方接口,比如bsvc或cia的504,502等异常<br />
  * 这些异常均属于非业务异常,与业务毫无关系,所以单独处理<br />
  * 注意:StoreBusinessException 不要捕获,否则无法被BusinessExceptionHandlerAdvice 截获<br />
- * 注意:传递url中的参数如果可能包含中文一定要URL编码,
+ * 注意:传递url中的参数如果可能包含中文一定要URL编码, <br />
+ * 待解决的问题:在springBoot中,出现异常被 BusinessExceptionHandlerAdvice 处理,则不会走 CacheResponseBodyAdvice <br />
  */
 @ControllerAdvice
 public class BusinessExceptionHandlerAdvice {
