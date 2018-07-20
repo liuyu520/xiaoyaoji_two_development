@@ -5,7 +5,7 @@ import com.common.bean.exception.LogicBusinessException;
 import com.common.util.BusinessExceptionUtil;
 import com.common.util.SystemHWUtil;
 import com.common.util.WebServletUtil;
-import com.kunlunsoft.util.RequestUtil;
+import com.kunlunsoft.util.HttpRequestUtil;
 import com.string.widget.util.ValueWidget;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -65,7 +65,7 @@ public class BusinessExceptionHandlerAdvice {
             @Override
             public Object callback(Object... objects) {
                 return //把请求参数 附加到应答体 response中
-                        RequestUtil.appendQueryParamToBody(request, (String
+                        HttpRequestUtil.appendQueryParamToBody(request, (String
                                 ) objects[0]);
             }
         });

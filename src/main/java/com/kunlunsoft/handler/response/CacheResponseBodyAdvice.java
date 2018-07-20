@@ -1,7 +1,7 @@
 package com.kunlunsoft.handler.response;
 
 import com.common.util.WebServletUtil;
-import com.kunlunsoft.util.RequestUtil;
+import com.kunlunsoft.util.HttpRequestUtil;
 import com.string.widget.util.ValueWidget;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class CacheResponseBodyAdvice implements ResponseBodyAdvice {
         }
         String json = (String) body;
         //把请求参数 附加到应答体 response中
-        json = RequestUtil.appendQueryParamToBody(servletServerHttpRequest.getServletRequest(), json);
+        json = HttpRequestUtil.appendQueryParamToBody(servletServerHttpRequest.getServletRequest(), json);
         if (!ValueWidget.isNullOrEmpty(json)) {
             body = json;
         }

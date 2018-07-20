@@ -1,14 +1,15 @@
 package com.kunlunsoft.web.controller;
 
 import com.common.bean.BaseResponseDto;
+import com.common.bean.callback.ICommonCallback;
 import com.common.util.SystemHWUtil;
 import com.io.hw.json.HWJacksonUtils;
-import com.kunlunsoft.dto.ColumnDescResponseDto;
 import com.kunlunsoft.dto.ResponseArgsDto;
 import com.kunlunsoft.dto.request.DescriptionDto;
 import com.kunlunsoft.model2.response.ResponseArgsItem;
 import com.kunlunsoft.mybatis.mapper2.InterfaceMapper;
 import com.kunlunsoft.service.InterfaceDetailService;
+import com.kunlunsoft.util.HttpRequestUtil;
 import com.string.widget.util.ValueWidget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -65,10 +66,40 @@ public class InterfaceController {
             , @RequestParam(name = "entity", required = false) String entity
             , @RequestParam(name = "id", required = false) String id
             , @RequestParam(name = "name", required = false) String name) {
-        String entityName = "nearbyHouse";
-        if (ValueWidget.isNullOrEmpty(entity)) {
-            entity = entityName;
-        }
+        final String entity2 = (ValueWidget.isNullOrEmpty(entity) ? "nearbyHouse" : entity);
+        ICommonCallback commonCallback = new ICommonCallback() {
+            @Override
+            public Object callback(Object... objects) {
+                settingRespDescAction(entity2, (List<ResponseArgsItem>) objects[0]);
+                return null;
+            }
+        };
+
+        List<ResponseArgsItem> responseargItems = settingDescAction(id, name, commonCallback);
+        return HWJacksonUtils.getJsonP(responseargItems);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/auto/settingByEntity/desc/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
+    public String jsonAutoFillDescriptionByEntity2(Model model, HttpServletRequest request, HttpServletResponse response
+            , @RequestParam(name = "entity", required = false) String entity
+            , @RequestParam(name = "id", required = false) String id
+            , @RequestParam(name = "name", required = false) String name) {
+        final String entity2 = (ValueWidget.isNullOrEmpty(entity) ? "nearbyHouse" : entity);
+        ICommonCallback commonCallback = new ICommonCallback() {
+            @Override
+            public Object callback(Object... objects) {
+                settingRespDescByEntityAction(entity2, (List<ResponseArgsItem>) objects[0]);
+                return null;
+            }
+        };
+
+        List<ResponseArgsItem> responseargItems = settingDescAction(id, name, commonCallback);
+        return HWJacksonUtils.getJsonP(responseargItems);
+    }
+
+
+    private List<ResponseArgsItem> settingDescAction(@RequestParam(name = "id", required = false) String id, @RequestParam(name = "name", required = false) String name, ICommonCallback commonCallback) {
         List<ResponseArgsItem> responseargItems = null;
         ResponseArgsDto responseArgsDto = null;
         if (ValueWidget.isNullOrEmpty(id)) {
@@ -77,9 +108,9 @@ public class InterfaceController {
             responseArgsDto = interfaceDetailService.getResponseArgsItems(id);
         }
         responseargItems = responseArgsDto.getResponseargItems();
-        settingRespDescAction(entity, responseargItems);
+        commonCallback.callback(responseargItems);
         interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), responseArgsDto.getId());
-        return HWJacksonUtils.getJsonP(responseargItems);
+        return responseargItems;
     }
 
 
@@ -106,42 +137,23 @@ public class InterfaceController {
             System.out.println("responseargItems is null :" + responseargItems);
             return;
         }
-        Map<String, String> descSimpleMap = getColumnDescMap(entityName);
+        Map<String, String> descSimpleMap = HttpRequestUtil.getColumnDescMap(entityName);
 
         System.out.println(" :" + descSimpleMap);
 
         settingRespDesc2(descSimpleMap, responseargItems);
     }
 
-    private static Map<String, String> getColumnDescMap(String entityName) {
-        // 应答字段含义
-        com.common.bean.RequestSendChain requestInfoBeanOrderObs = new com.common.bean.RequestSendChain();
-        requestInfoBeanOrderObs.setServerIp("house.yhskyc.com");
-        requestInfoBeanOrderObs.setSsl(false);
-        requestInfoBeanOrderObs.setPort("80");
-        requestInfoBeanOrderObs.setActionPath("/columnDescrip/map/json");
-        requestInfoBeanOrderObs.setCustomRequestContentType("");
-        requestInfoBeanOrderObs.setRequestMethod(com.common.dict.Constant2.REQUEST_METHOD_GET);
-        // requestInfoBeanOrderObs.setDependentRequest(requestInfoBeanLogin);
-        requestInfoBeanOrderObs.setCurrRequestParameterName("");
-        requestInfoBeanOrderObs.setPreRequestParameterName("");
+    private void settingRespDescByEntityAction(String entityName, List<ResponseArgsItem> responseargItems) {
+        if (ValueWidget.isNullOrEmpty(responseargItems)) {
+            System.out.println("responseargItems is null :" + responseargItems);
+            return;
+        }
+        Map<String, String> descSimpleMap = HttpRequestUtil.columnDescriptionByEntity(entityName);
 
-        java.util.TreeMap parameterMaprDIL = new java.util.TreeMap();//请求参数
-        parameterMaprDIL.put("entity", entityName);
-        parameterMaprDIL.put("simple", "true");
-        requestInfoBeanOrderObs.setRequestParameters(parameterMaprDIL);
-        requestInfoBeanOrderObs.updateRequestBody();
-
-//                    org.apache.commons.collections.map.ListOrderedMap header=new org.apache.commons.collections.map.ListOrderedMap();
-//                    requestInfoBeanOrderObs.setHeaderMap( header);
-
-        com.common.bean.ResponseResult responseResultOrdermQN = requestInfoBeanOrderObs.request(); //new RequestPanel.ResponseResult(requestInfoBeanLogin).invoke();
-        String responseOrderqdk = responseResultOrdermQN.getResponseJsonResult();
-        System.out.println("responseText:" + responseOrderqdk);
-        System.out.println(responseOrderqdk);
-        ColumnDescResponseDto columnDescResponseDto = (ColumnDescResponseDto) HWJacksonUtils.deSerialize(responseOrderqdk, ColumnDescResponseDto.class);
-        return columnDescResponseDto.getValue();
+        settingRespDesc2(descSimpleMap, responseargItems);
     }
+
 
     @ResponseBody
     @RequestMapping(value = "/desc/map/json", produces = SystemHWUtil.RESPONSE_CONTENTTYPE_JSON_UTF)
@@ -159,6 +171,10 @@ public class InterfaceController {
     }
 
     private void settingRespDesc2(Map<String, String> descSimpleMap, List<ResponseArgsItem> responseArgItems) {
+        if (null == descSimpleMap) {
+            System.out.println("descSimpleMap is null :" + descSimpleMap);
+            return;
+        }
         for (ResponseArgsItem responseArgsItem : responseArgItems) {
             if (ValueWidget.isNullOrEmpty(responseArgsItem.getChildren())) {
                 if (ValueWidget.isNullOrEmpty(responseArgsItem.getDescription())) {
