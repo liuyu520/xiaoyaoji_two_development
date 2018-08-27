@@ -181,14 +181,15 @@ public class InterfaceController {
             System.out.println("descSimpleMap is null :" + descSimpleMap);
             return;
         }
-        if (!ValueWidget.isNullOrEmpty(updateAagsParam.getParentNodeName())) {
-            if (ValueWidget.isNullOrEmpty(parentNodeName)
-                    || (!parentNodeName.equals(updateAagsParam.getParentNodeName()))) {
-                return;
-            }
-        }
+
         for (ResponseArgsItem responseArgsItem : responseArgItems) {
             if (ValueWidget.isNullOrEmpty(responseArgsItem.getChildren())) {
+                if (!ValueWidget.isNullOrEmpty(updateAagsParam.getParentNodeName())) {
+                    if (ValueWidget.isNullOrEmpty(parentNodeName)
+                            || (!parentNodeName.equals(updateAagsParam.getParentNodeName()))) {
+                        continue;
+                    }
+                }
                 Boolean forceCover = updateAagsParam.getForceCover();
                 //叶子节点
                 forceCover = org.apache.commons.lang3.ObjectUtils.firstNonNull(forceCover, false);
