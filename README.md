@@ -15,3 +15,12 @@
 
 ## 数据库脚本
 修改 表 Interface中的responseargs 类型为longText
+
+## 启动/服务器部署
+
+```
+ nohup  java -Dfile.encoding=UTF-8 -Dspring.profiles.active=prod   -jar xiaoyaoji_two_development-0.0.1-SNAPSHOT.jar  --server.port=8083 &
+```
+
+## 停止springboot服务
+curl -X POST  http://xyj.yhskyc.com/shutdown
