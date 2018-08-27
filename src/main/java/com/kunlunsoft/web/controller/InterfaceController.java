@@ -6,6 +6,7 @@ import com.common.util.SystemHWUtil;
 import com.io.hw.json.HWJacksonUtils;
 import com.kunlunsoft.dto.ResponseArgsDto;
 import com.kunlunsoft.dto.request.DescriptionDto;
+import com.kunlunsoft.dto.request.UpdateAagsParam;
 import com.kunlunsoft.model2.response.ResponseArgsItem;
 import com.kunlunsoft.mybatis.mapper2.InterfaceMapper;
 import com.kunlunsoft.service.InterfaceDetailService;
@@ -52,12 +53,12 @@ public class InterfaceController {
     public String jsonFillDescription2(Model model, HttpServletRequest request, HttpServletResponse response
             , @RequestParam(name = "descJson", required = false) String descJson
             , @RequestParam(name = "id", required = true) String id
-            , Boolean forceCover) {
+            , UpdateAagsParam updateAagsParam) {
         Map<String, DescriptionDto> descriptionDtoMap = HWJacksonUtils.deSerializeMap(descJson, DescriptionDto.class);
         Map<String, String> descSimpleMap = parse2SimpleMap(descriptionDtoMap, null);
         ResponseArgsDto responseArgsDto = interfaceDetailService.getResponseArgsItems(id);
         List<ResponseArgsItem> responseargItems = responseArgsDto.getResponseargItems();
-        settingRespDesc2(descSimpleMap, responseargItems, forceCover);
+        settingRespDesc2(descSimpleMap, responseargItems, null, updateAagsParam);
         return HWJacksonUtils.getJsonP(responseargItems);
     }
 
@@ -67,12 +68,12 @@ public class InterfaceController {
             , @RequestParam(name = "entity", required = false) String entity
             , @RequestParam(name = "id", required = false) String id
             , @RequestParam(name = "name", required = false) String name
-            , Boolean forceCover) {
+            , UpdateAagsParam updateAagsParam) {
         final String entity2 = (ValueWidget.isNullOrEmpty(entity) ? "nearbyHouse" : entity);
         ICommonCallback commonCallback = new ICommonCallback() {
             @Override
             public Object callback(Object... objects) {
-                settingRespDescAction(entity2, (List<ResponseArgsItem>) objects[0], forceCover);
+                settingRespDescAction(entity2, (List<ResponseArgsItem>) objects[0], updateAagsParam);
                 return null;
             }
         };
@@ -87,12 +88,12 @@ public class InterfaceController {
             , @RequestParam(name = "entity", required = false) String entity
             , @RequestParam(name = "id", required = false) String id
             , @RequestParam(name = "name", required = false) String name
-            , Boolean forceCover) {
+            , UpdateAagsParam updateAagsParam) {
         final String entity2 = (ValueWidget.isNullOrEmpty(entity) ? "nearbyHouse" : entity);
         ICommonCallback commonCallback = new ICommonCallback() {
             @Override
             public Object callback(Object... objects) {
-                settingRespDescByEntityAction(entity2, (List<ResponseArgsItem>) objects[0], forceCover);
+                settingRespDescByEntityAction(entity2, (List<ResponseArgsItem>) objects[0], updateAagsParam);
                 return null;
             }
         };
@@ -123,7 +124,7 @@ public class InterfaceController {
             , @RequestParam(name = "entity", required = false) String entity
             , @RequestParam(name = "url", required = false) String url
             , @RequestParam(name = "requestmethod", required = false) String requestmethod
-            , Boolean forceCover) {
+            , UpdateAagsParam updateAagsParam) {
         String entityName = "nearbyHouse";
         if (ValueWidget.isNullOrEmpty(entity)) {
             entity = entityName;
@@ -131,12 +132,12 @@ public class InterfaceController {
         List<ResponseArgsItem> responseargItems = null;
         ResponseArgsDto responseArgsDto = interfaceDetailService.getResponseArgsItemsByUrlAndMethod(url, requestmethod);
         responseargItems = responseArgsDto.getResponseargItems();
-        settingRespDescAction(entity, responseargItems, forceCover);
+        settingRespDescAction(entity, responseargItems, updateAagsParam);
         interfaceMapper.updateResponseargsById(HWJacksonUtils.getJsonP(responseargItems), responseArgsDto.getId());
         return HWJacksonUtils.getJsonP(responseargItems);
     }
 
-    private void settingRespDescAction(String entityName, List<ResponseArgsItem> responseargItems, Boolean forceCover) {
+    private void settingRespDescAction(String entityName, List<ResponseArgsItem> responseargItems, UpdateAagsParam updateAagsParam) {
         if (ValueWidget.isNullOrEmpty(responseargItems)) {
             System.out.println("responseargItems is null :" + responseargItems);
             return;
@@ -145,17 +146,17 @@ public class InterfaceController {
 
         System.out.println(" :" + descSimpleMap);
 
-        settingRespDesc2(descSimpleMap, responseargItems, forceCover);
+        settingRespDesc2(descSimpleMap, responseargItems, null, updateAagsParam);
     }
 
-    private void settingRespDescByEntityAction(String entityName, List<ResponseArgsItem> responseargItems, Boolean forceCover) {
+    private void settingRespDescByEntityAction(String entityName, List<ResponseArgsItem> responseargItems, UpdateAagsParam updateAagsParam) {
         if (ValueWidget.isNullOrEmpty(responseargItems)) {
             System.out.println("responseargItems is null :" + responseargItems);
             return;
         }
         Map<String, String> descSimpleMap = HttpRequestUtil.columnDescriptionByEntity(entityName);
 
-        settingRespDesc2(descSimpleMap, responseargItems, forceCover);
+        settingRespDesc2(descSimpleMap, responseargItems, null, updateAagsParam);
     }
 
 
@@ -174,13 +175,21 @@ public class InterfaceController {
         return null;
     }
 
-    private void settingRespDesc2(Map<String, String> descSimpleMap, List<ResponseArgsItem> responseArgItems, Boolean forceCover) {
+    private void settingRespDesc2(Map<String, String> descSimpleMap, List<ResponseArgsItem> responseArgItems, String parentNodeName, UpdateAagsParam updateAagsParam) {
+
         if (null == descSimpleMap) {
             System.out.println("descSimpleMap is null :" + descSimpleMap);
             return;
         }
+        if (!ValueWidget.isNullOrEmpty(updateAagsParam.getParentNodeName())) {
+            if (ValueWidget.isNullOrEmpty(parentNodeName)
+                    || (!parentNodeName.equals(updateAagsParam.getParentNodeName()))) {
+                return;
+            }
+        }
         for (ResponseArgsItem responseArgsItem : responseArgItems) {
             if (ValueWidget.isNullOrEmpty(responseArgsItem.getChildren())) {
+                Boolean forceCover = updateAagsParam.getForceCover();
                 //叶子节点
                 forceCover = org.apache.commons.lang3.ObjectUtils.firstNonNull(forceCover, false);
                 String fieldDesc = descSimpleMap.get(responseArgsItem.getName());
@@ -191,7 +200,7 @@ public class InterfaceController {
                 }
             } else {
                 //如果有子节点,则继续进行递归
-                settingRespDesc2(descSimpleMap, responseArgsItem.getChildren(), forceCover);
+                settingRespDesc2(descSimpleMap, responseArgsItem.getChildren(), responseArgsItem.getName(), updateAagsParam);
             }
         }
     }
