@@ -177,10 +177,14 @@ public class InterfaceController {
         }
         for (ResponseArgsItem responseArgsItem : responseArgItems) {
             if (ValueWidget.isNullOrEmpty(responseArgsItem.getChildren())) {
-                if (ValueWidget.isNullOrEmpty(responseArgsItem.getDescription())) {
-                    responseArgsItem.setDescription(descSimpleMap.get(responseArgsItem.getName()));
+                //叶子节点
+                String fieldDesc = descSimpleMap.get(responseArgsItem.getName());
+                if (ValueWidget.isNullOrEmpty(responseArgsItem.getDescription())
+                        && (!ValueWidget.isNullOrEmpty(fieldDesc))) {
+                    responseArgsItem.setDescription(fieldDesc);
                 }
             } else {
+                //如果有子节点,则继续进行递归
                 settingRespDesc2(descSimpleMap, responseArgsItem.getChildren());
             }
         }
