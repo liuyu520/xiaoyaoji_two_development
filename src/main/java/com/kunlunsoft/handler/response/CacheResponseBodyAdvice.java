@@ -69,6 +69,9 @@ public class CacheResponseBodyAdvice implements ResponseBodyAdvice {
         if (ValueWidget.isNullOrEmpty(body)) {
             return body;
         }
+        if (!(body instanceof String)) {
+            return body;
+        }
         String json = (String) body;
         //把请求参数 附加到应答体 response中
         json = HttpRequestUtil.appendQueryParamToBody(servletServerHttpRequest.getServletRequest(), json);
